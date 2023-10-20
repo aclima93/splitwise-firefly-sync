@@ -63,8 +63,9 @@ def getExpensesAfter(sw: Splitwise, date: datetime, user: User) -> Generator[tup
         if exp.getDescription() == "Settle all balances":
             continue
 
-        # Get data, latest comment > old comment > notes
-        data: str = None
+        data = []
+        # # Get data, latest comment > old comment > notes
+        # data: str = None
 
         accept_check = exp.getUpdatedBy() and exp.getUpdatedBy().getId() == user.getId()
         accept_check = accept_check or (
@@ -73,20 +74,21 @@ def getExpensesAfter(sw: Splitwise, date: datetime, user: User) -> Generator[tup
         if accept_check and (details := processText(exp.getDetails())):
             data = details
 
-        c: Comment
-        for c in sw.getComments(exp.getId()):
-            if c.getCommentedUser().getId() != user.getId():
-                pass
-            if text := processText(c.getContent()):
-                data = text
+        # Ignore the mandatory splitwise comment restriction, simply import the transactions
+        # c: Comment
+        # for c in sw.getComments(exp.getId()):
+        #     if c.getCommentedUser().getId() != user.getId():
+        #         pass
+        #     if text := processText(c.getContent()):
+        #         data = text
 
-        # If not found, do not process, report
-        if not data:
-            print(
-                f"-----> {formatExpense(exp, myshare)} matches, no comment found! Enter manually.")
-            continue
-        if data[0] == True:
-            data = []
+        # # If not found, do not process, report
+        # if not data:
+        #     print(
+        #         f"-----> {formatExpense(exp, myshare)} matches, no comment found! Enter manually.")
+        #     continue
+        # if data[0] == True:
+        #     data = []
 
         yield exp, myshare, data
 
